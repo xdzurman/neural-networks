@@ -33,9 +33,6 @@ Another subdomain of this problem is colorizing cartoons or comics/mangas which 
 in [Comicolorization: semi-automatic manga colorization](https://dl.acm.org/citation.cfm?id=3149430) 
 and [Automatic Cartoon Colorization Based on Convolutional Neural Network](https://dl.acm.org/citation.cfm?id=3095742).
 
-Other approach extracts features from 
-groups of pixels and tries to predict output color for each pixel., ...**TODO RESEARCH**
-
 ## Datasets
 
 There are many sites that provide free photographs - [Unsplash](https://unsplash.com/), 
@@ -49,7 +46,8 @@ It's safe to say that gigabytes of images are available. There are many types of
 domain, other more general. 
 
 ## High-Level Solution Proposal 
-> If you know already, what will be the architecture of the model, what experiments would you like to perform.
 
 Our first approach will be to try replicate some baseline from related work and then we will try to make some
-improvements.
+improvements. We will start with a basic convulutional neural network to prove concept of colorization. We could then use a well-known neural network architecture to compare our results and thus either improve our first attempt or to learn from the baseline solution. 
+
+Concerning the experiments, first we will empirically evaluate whether the neural network is at least moderately successful in colorizing the pictures. Later, when we are more self confident about the solution, we can use a distance metric of RGB or Lab format of original pictures and our colorized pictures. If the metric results will not be sufficient, we will use a more elaborate metric.
