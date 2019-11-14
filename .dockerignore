@@ -1,2 +1,3 @@
-datasets/*.tar
-datasets/emilwallner-datasets-colornet-2
+.idea
+**/*.ipynb_checkpoints
+venv
