@@ -18,7 +18,7 @@ def create_model():
 
 def train_model():
     train_paths, valid_paths, _ = get_train_valid_test(c.DATASET_PATH)
-    batch_size = 50
+    batch_size = 1
 
     print(f'train images size {len(train_paths)}, valid images size {len(valid_paths)}, batch_size {batch_size}')
     train_data = create_tf_dataset(train_paths, batch_size)
