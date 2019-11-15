@@ -4,6 +4,6 @@
 .git
 datasets/*.tar
 datasets/emilwallner-datasets-colornet-2
-venv
+venv/
 __pycache__/
 *.py[cod]
