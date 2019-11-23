@@ -9,7 +9,7 @@ from src.helpers.dataset_helpers import create_tf_dataset, get_train_valid_test
 
 
 def create_model():
-    embed_input = Input(shape=(c.EMBED_SIZE,))
+    embed_input = Input(shape=(1000,))
     input = Input(shape=(c.IMG_HEIGHT, c.IMG_WIDTH, 1), dtype=tf.dtypes.float32)
     colorizing_model = Model(inputs=[input, embed_input], outputs=[model.model_layers(input, embed_input)])
     colorizing_model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
@@ -28,10 +28,10 @@ def train_model():
     model = create_model()
     model.fit(
         train_data,
-        epochs=500,
-        steps_per_epoch=5,
+        epochs=20,
+        steps_per_epoch=1,
         validation_data=valid_data,
-        validation_steps=5
+        validation_steps=1
     )
 
     return model

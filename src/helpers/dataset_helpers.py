@@ -6,11 +6,12 @@ from skimage import color
 from tensorflow.keras.preprocessing.image import load_img
 import src.consts as c
 from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2, preprocess_input
+from skimage.transform import resize
 
 L_RANGE = 100
 AB_RANGE = 128
 inception = InceptionResNetV2(weights='imagenet', include_top=True)
-inception.graph = tf.get_default_graph()
+# inception.graph = tf.get_default_graph()
 
 
 def get_train_valid_test(path):
@@ -50,34 +51,47 @@ def join_l_ab(l, ab):
 
 def inception_embedding(img):
     rgb_img = color.gray2rgb(color.rgb2gray(img))
-    rgb_img_resize = []
-    for i in rgb_img:
-        i = resize(i, (299, 299, 3), mode='constant')
-        rgb_img_resize.append(i)
-    rgb_img_resize = np.array(rgb_img_resize)
+    rgb_img_resize = resize(rgb_img, (299, 299, 3), mode='constant')
+    rgb_img_resize = np.array([rgb_img_resize])
     rgb_img_resize = preprocess_input(rgb_img_resize)
-    with inception.graph.as_default():
-        embed = inception.predict(rgb_img_resize)
-    return embed
+    embed = inception.predict(rgb_img_resize)
+    return embed[0]
+    
+    
+    
+#     rgb_img_resize = []
+#     for i in rgb_img:
+#         i = resize(i, (299, 299, 3), mode='constant')
+#         rgb_img_resize.append(i)
+#     rgb_img_resize = np.array([rgb_img_resize])
+#     rgb_img_resize = preprocess_input(rgb_img_resize)
+# #     with inception.graph.as_default():
+#     embed = inception.predict(rgb_img_resize)
+#     return embed
 
 
 def image_generator(img_paths):
     for img_path in img_paths:
         img = load_image(img_path) / 255
         img_l, img_ab = split_img_to_l_ab(img)
+        img_l.reshape(img_l.shape + (1,))
         embedding = inception_embedding(img)
-
-        yield [img_l, embedding], img_ab
+        
+        
+        yield (img_l.reshape(img_l.shape + (1,)), embedding), (img_ab)
 
 
 def create_tf_dataset(img_paths, batch_size=1):
     tf_dataset = tf.data.Dataset.from_generator(
         lambda: image_generator(img_paths),
         output_shapes=(
-            tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 1]),
-            tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 2])
+            (
+                tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 1]),
+                tf.TensorShape((1000,))
+            ),
+            (tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 2]))
         ),
-        output_types=(tf.float32, tf.float32)
+        output_types=((tf.float32, tf.float32), (tf.float32))
     )
 
     tf_dataset = tf_dataset.batch(batch_size=batch_size)
