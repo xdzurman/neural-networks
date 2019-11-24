@@ -18,13 +18,13 @@ def get_train_valid_test(path):
     file_paths = os.listdir(path)
     file_paths = [path+filepath for filepath in file_paths]
 
-    valid_test_ratio = 0.05
-    split = int(valid_test_ratio * len(file_paths))
-    double_split = 2 * split
+    train_ratio = 0.80
+    split = int(train_ratio * len(file_paths))
+    double_split = int((len(file_paths) - split) / 2 + split)
 
-    valid_paths = file_paths[:split]
-    test_paths = file_paths[split:double_split]
-    train_paths = file_paths[double_split:]
+    train_paths = file_paths[:split]
+    valid_paths = file_paths[split:double_split]
+    test_paths = file_paths[double_split:]
 
     return train_paths, valid_paths, test_paths
 
