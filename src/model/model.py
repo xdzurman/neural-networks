@@ -11,8 +11,6 @@ def model_layers(input, embed_input):
     x = Conv2D(512, (3,3), activation='relu', padding='same')(x)
     x = Conv2D(512, (3,3), activation='relu', padding='same')(x)
     x = Conv2D(256, (3,3), activation='relu', padding='same')(x)
-
-#     x = Conv2D(256, 3, padding='same', activation='relu')(x)
     
     # Embedding
     f = RepeatVector(32 * 32)(embed_input) 

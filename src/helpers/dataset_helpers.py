@@ -11,7 +11,7 @@ from skimage.transform import resize
 L_RANGE = 100
 AB_RANGE = 128
 inception = InceptionResNetV2(weights='imagenet', include_top=True)
-# inception.graph = tf.get_default_graph()
+# inception.graph = tf.get_default_graph() # probably useless in new tensorflow
 
 
 def get_train_valid_test(path):
@@ -56,18 +56,6 @@ def inception_embedding(img):
     rgb_img_resize = preprocess_input(rgb_img_resize)
     embed = inception.predict(rgb_img_resize)
     return embed[0]
-    
-    
-    
-#     rgb_img_resize = []
-#     for i in rgb_img:
-#         i = resize(i, (299, 299, 3), mode='constant')
-#         rgb_img_resize.append(i)
-#     rgb_img_resize = np.array([rgb_img_resize])
-#     rgb_img_resize = preprocess_input(rgb_img_resize)
-# #     with inception.graph.as_default():
-#     embed = inception.predict(rgb_img_resize)
-#     return embed
 
 
 def image_generator(img_paths):
@@ -76,8 +64,7 @@ def image_generator(img_paths):
         img_l, img_ab = split_img_to_l_ab(img)
         img_l.reshape(img_l.shape + (1,))
         embedding = inception_embedding(img)
-        
-        
+
         yield (img_l.reshape(img_l.shape + (1,)), embedding), (img_ab)
 
 
