@@ -35,7 +35,7 @@ def train_model(train_paths, valid_paths):
     model.fit(
         train_data,
         epochs=c.EPOCHS,
-        steps_per_epoch=len(train_paths)//batch_size,
+        steps_per_epoch=c.STEPS_PER_EPOCH,
         # validation_data=valid_data,
         # validation_steps=1,
         callbacks=[tensorboard_callback]
