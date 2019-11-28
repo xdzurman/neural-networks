@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+import warnings
 
 from skimage import color
 from tensorflow.keras.preprocessing.image import load_img
@@ -16,7 +17,7 @@ inception = InceptionResNetV2(weights='imagenet', include_top=True)
 
 def get_train_valid_test(path):
     file_paths = os.listdir(path)
-    file_paths = [path+filepath for filepath in file_paths]
+    file_paths = [path + filepath for filepath in file_paths]
 
     train_ratio = 0.80
     split = int(train_ratio * len(file_paths))
@@ -44,9 +45,12 @@ def split_img_to_l_ab(img):
 
 def join_l_ab(l, ab):
     img = np.zeros((c.IMG_HEIGHT, c.IMG_WIDTH, 3))
-    img[:,:,0] = l[:,:,0] * L_RANGE
-    img[:,:,1:] = ab * AB_RANGE
-    return color.lab2rgb(img)
+    img[:, :, 0] = l[:, :, 0] * L_RANGE
+    img[:, :, 1:] = ab * AB_RANGE
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        return color.lab2rgb(img)
 
 
 def inception_embedding(img):
@@ -85,3 +89,13 @@ def create_tf_dataset(img_paths, batch_size=1):
     tf_dataset = tf_dataset.repeat()
 
     return tf_dataset
+
+
+def get_imgs_from_model_and_dataset(model, inputs, ab):
+    l = inputs[0]
+    bw_img = l[:, :, 0]
+    original_img = join_l_ab(l, ab)
+    predict_input = [np.expand_dims(l, axis=0), np.expand_dims(inputs[1], axis=0)]
+    predict_output = model.predict(predict_input)
+    predict_img = join_l_ab(l, predict_output)
+    return bw_img, original_img, predict_img
