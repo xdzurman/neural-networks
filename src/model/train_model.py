@@ -20,10 +20,10 @@ def create_model():
 
 def train_model():
     train_paths, valid_paths, _ = get_train_valid_test(c.DATASET_PATH)
-    batch_size = 16
+    batch_size = c.BATCH_SIZE
 
     print(f'train images size {len(train_paths)}, valid images size {len(valid_paths)}, batch_size {batch_size}')
-    train_data = create_tf_dataset(train_paths[:c.TRAIN_SIZE], batch_size)
+    train_data = create_tf_dataset(train_paths, batch_size)
     valid_data = create_tf_dataset(valid_paths, batch_size)
     
     log_dir="logs/train/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -32,8 +32,8 @@ def train_model():
     model = create_model()
     model.fit(
         train_data,
-        epochs=300,
-        steps_per_epoch=c.TRAIN_SIZE//batch_size,
+        epochs=c.EPOCHS,
+        steps_per_epoch=len(train_paths)//batch_size,
         # validation_data=valid_data,
         # validation_steps=1,
         callbacks=[tensorboard_callback]

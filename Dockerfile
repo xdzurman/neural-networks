@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM tensorflow/tensorflow:2.0.0-gpu-py3
 
 RUN apt-get update && apt-get install -y apt-utils
 RUN apt-get install -y apt-transport-https
