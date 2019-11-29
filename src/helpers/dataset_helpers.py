@@ -1,18 +1,20 @@
 import os
+import warnings
+import pandas as pd
 import numpy as np
 import tensorflow as tf
-import warnings
-
+from ast import literal_eval
 from skimage import color
 from tensorflow.keras.preprocessing.image import load_img
+
 import src.consts as c
-from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2, preprocess_input
-from skimage.transform import resize
 
 L_RANGE = 100
 AB_RANGE = 128
-inception = InceptionResNetV2(weights='imagenet', include_top=True)
-# inception.graph = tf.get_default_graph() # probably useless in new tensorflow
+
+df_inception_resnet2 = pd.read_csv("./precomputed_inputs/inception_res_net_v2.csv")
+df_inception_resnet2 = df_inception_resnet2.drop(columns=['Unnamed: 0']).set_index('file_name')
+df_inception_resnet2['embedding'] = df_inception_resnet2['embedding'].apply(lambda x: np.array(eval(x.replace(' ', ','))))
 
 
 def get_train_valid_test(path):
@@ -53,22 +55,12 @@ def join_l_ab(l, ab):
         return color.lab2rgb(img)
 
 
-def inception_embedding(img):
-    rgb_img = color.gray2rgb(color.rgb2gray(img))
-    rgb_img_resize = resize(rgb_img, (299, 299, 3), mode='constant')
-    rgb_img_resize = np.array([rgb_img_resize])
-    rgb_img_resize = preprocess_input(rgb_img_resize)
-    embed = inception.predict(rgb_img_resize)
-    return embed[0]
-
-
 def image_generator(img_paths):
     for img_path in img_paths:
         img = load_image(img_path) / 255
         img_l, img_ab = split_img_to_l_ab(img)
         img_l.reshape(img_l.shape + (1,))
-        embedding = inception_embedding(img)
-
+        embedding = df_inception_resnet2.loc[img_path.split('/')[-1]]['embedding']
         yield (img_l.reshape(img_l.shape + (1,)), embedding), (img_ab)
 
 
@@ -76,13 +68,10 @@ def create_tf_dataset(img_paths, batch_size=1):
     tf_dataset = tf.data.Dataset.from_generator(
         lambda: image_generator(img_paths),
         output_shapes=(
-            (
-                tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 1]),
-                tf.TensorShape((1000,))
-            ),
-            (tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 2]))
+            (tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 1]), tf.TensorShape((1000,))),
+            (tf.TensorShape([c.IMG_HEIGHT, c.IMG_WIDTH, 2])),
         ),
-        output_types=((tf.float32, tf.float32), (tf.float32))
+        output_types=((tf.float32, tf.float32), (tf.float32)),
     )
 
     tf_dataset = tf_dataset.batch(batch_size=batch_size)

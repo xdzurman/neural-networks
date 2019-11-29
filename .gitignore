@@ -7,3 +7,4 @@ datasets/emilwallner-datasets-colornet-2
 venv/
 __pycache__/
 *.py[cod]
+precomputed_inputs/*.csv

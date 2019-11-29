@@ -1,8 +1,7 @@
-
 IMG_HEIGHT = 256
 IMG_WIDTH = 256
 EMBED_SIZE = 1000
 BATCH_SIZE = 16
 EPOCHS = 300
-STEPS_PER_EPOCH = 50
+STEPS_PER_EPOCH = 7435 // BATCH_SIZE
 DATASET_PATH = './datasets/emilwallner-datasets-colornet-2/images/Train/'
