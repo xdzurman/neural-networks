@@ -3,7 +3,6 @@ import warnings
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-from ast import literal_eval
 from skimage import color
 from tensorflow.keras.preprocessing.image import load_img
 

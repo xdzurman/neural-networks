@@ -3,26 +3,11 @@ import logging
 import os
 
 import tensorflow as tf
-from skimage import io
-from tensorflow.keras import Input
-from tensorflow.keras.models import Model
 
 import src.consts as c
-from src.helpers.dataset_helpers import (create_tf_dataset,
-                                         get_imgs_from_model_and_dataset,
-                                         get_train_valid_test, image_generator)
-from src.model import model
-
-
-def create_model():
-    embed_input = Input(shape=(c.EMBED_SIZE,))
-    input = Input(shape=(c.IMG_HEIGHT, c.IMG_WIDTH, 1), dtype=tf.dtypes.float32)
-    colorizing_model = Model(
-        inputs=[input, embed_input], outputs=[model.model_layers(input, embed_input)]
-    )
-    colorizing_model.compile(optimizer="rmsprop", loss="mse", metrics=["accuracy"])
-
-    return colorizing_model
+from src.helpers.dataset_helpers import (create_tf_dataset, get_train_valid_test)
+from src.helpers.visualize_model import (save_models_images)
+from src.model.create_model import create_model
 
 
 def train_model(train_paths, valid_paths, SAVE_PATH):
@@ -66,30 +51,7 @@ if __name__ == "__main__":
         os.makedirs(SAVE_PATH)
 
     model = train_model(train_paths, valid_paths, SAVE_PATH)
-    model.save(f"{SAVE_PATH}/model.h5")
-
+    model.save_weights(f"{SAVE_PATH}/weights.after_training.hdf5")
     logging.info(model.evaluate(test_data, steps=5))
-    # saving images
-    img_path = f"{SAVE_PATH}/img"
-    if not os.path.exists(img_path):
-        os.makedirs(img_path)
 
-    train_gen = image_generator(train_paths)
-    for i in range(5):
-        inputs, ab = next(train_gen)
-        bw_img, original_img, predict_img = get_imgs_from_model_and_dataset(
-            model, inputs, ab
-        )
-        io.imsave(f"{img_path}/train_{i}_bw.jpg", bw_img)
-        io.imsave(f"{img_path}/train_{i}_original.jpg", original_img)
-        io.imsave(f"{img_path}/train_{i}_predict.jpg", predict_img)
-
-    test_gen = image_generator(test_paths)
-    for i in range(5):
-        inputs, ab = next(test_gen)
-        bw_img, original_img, predict_img = get_imgs_from_model_and_dataset(
-            model, inputs, ab
-        )
-        io.imsave(f"{img_path}/test_{i}_bw.jpg", bw_img)
-        io.imsave(f"{img_path}/test_{i}_original.jpg", original_img)
-        io.imsave(f"{img_path}/test_{i}_predict.jpg", predict_img)
+    save_models_images(model, train_paths, test_paths, SAVE_PATH)
