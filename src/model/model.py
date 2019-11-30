@@ -6,6 +6,10 @@ import src.consts as c
 
 
 def model_layers(input, embed_input):
+    """
+    model from: https://github.com/emilwallner/Coloring-greyscale-images/blob/master/Full-version/full_version.ipynb
+    """
+
     # Going Down
     x = Conv2D(64, (3, 3), activation="relu", padding="same", strides=2)(input)
     x = Conv2D(128, (3, 3), activation="relu", padding="same")(x)

@@ -6,7 +6,7 @@ import tensorflow as tf
 
 import src.consts as c
 from src.helpers.dataset_helpers import (create_tf_dataset, get_train_valid_test)
-from src.helpers.visualize_model import (save_models_images)
+from src.model.visualize_model import (save_models_images)
 from src.model.create_model import create_model
 
 
@@ -19,18 +19,20 @@ def train_model(train_paths, valid_paths, SAVE_PATH):
     train_data = create_tf_dataset(train_paths, batch_size)
     valid_data = create_tf_dataset(valid_paths, batch_size)
 
-    log_dir = "logs/train/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
     model_checkpoint_name = 'weights.{epoch:02d}-{val_loss:.2f}'
     model_checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(filepath=f'{SAVE_PATH}/{model_checkpoint_name}.hdf5,', save_weights_only=True)
 
+    valid_steps = len(valid_paths) // batch_size
+    valid_steps = valid_steps if valid_steps >= 1 else 1
+
     model = create_model()
     model.fit(
-        train_data,
-        epochs=c.EPOCHS,
-        steps_per_epoch=c.STEPS_PER_EPOCH,
+        train_data,        epochs=c.EPOCHS,
+        steps_per_epoch=len(train_paths) // batch_size,
         validation_data=valid_data,
-        validation_steps=1,
+        validation_steps=valid_steps,
         callbacks=[tensorboard_callback, model_checkpoint_cb]
     )
 
@@ -38,6 +40,8 @@ def train_model(train_paths, valid_paths, SAVE_PATH):
 
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.INFO)
+
     train_paths, valid_paths, test_paths = get_train_valid_test(c.DATASET_PATH)
     test_data = create_tf_dataset(test_paths)
 
@@ -52,6 +56,10 @@ if __name__ == "__main__":
 
     model = train_model(train_paths, valid_paths, SAVE_PATH)
     model.save_weights(f"{SAVE_PATH}/weights.after_training.hdf5")
-    logging.info(model.evaluate(test_data, steps=5))
+
+    eval_steps = len(test_paths) // c.BATCH_SIZE
+    eval_steps = eval_steps if eval_steps >= 1 else 1
+    model_eval = model.evaluate(test_data, steps=eval_steps)
+    logging.info(f'Test dataset value {model_eval}')
 
     save_models_images(model, train_paths, test_paths, SAVE_PATH)
