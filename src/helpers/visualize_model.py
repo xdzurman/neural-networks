@@ -48,4 +48,8 @@ if __name__ == "__main__":
     logging.info('visualising', latest, SAVE_PATH)
 
     model.load_weights(latest)
-    save_models_images(model, train_paths, test_paths, SAVE_PATH)
+
+    sizes = 5
+    if len(sys.argv) > 2:
+        sizes = int(sys.argv[2])
+    save_models_images(model, train_paths, test_paths, SAVE_PATH, sizes)
