@@ -44,10 +44,10 @@ if __name__ == "__main__":
     latest = tf.train.latest_checkpoint(SAVE_PATH)
 
     test_data = create_tf_dataset(test_paths)
+    model.load_weights(latest)
+
     logging.info(model.evaluate(test_data, steps=5))
     logging.info('visualising', latest, SAVE_PATH)
-
-    model.load_weights(latest)
 
     sizes = 5
     if len(sys.argv) > 2:
