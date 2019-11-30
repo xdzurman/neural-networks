@@ -24,13 +24,19 @@ def train_model(train_paths, valid_paths, SAVE_PATH):
     model_checkpoint_name = 'weights.{epoch:02d}-{val_loss:.2f}'
     model_checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(filepath=f'{SAVE_PATH}/{model_checkpoint_name}.hdf5,', save_weights_only=True)
 
+    train_steps = len(train_paths) // batch_size
+    train_steps = train_steps if train_steps >= 1 else 1
+
     valid_steps = len(valid_paths) // batch_size
     valid_steps = valid_steps if valid_steps >= 1 else 1
 
+    logging.info(f'training steps: train {train_steps}, valid {valid_steps}')
+
     model = create_model()
     model.fit(
-        train_data,        epochs=c.EPOCHS,
-        steps_per_epoch=len(train_paths) // batch_size,
+        train_data,
+        epochs=c.EPOCHS,
+        steps_per_epoch=train_steps,
         validation_data=valid_data,
         validation_steps=valid_steps,
         callbacks=[tensorboard_callback, model_checkpoint_cb]
@@ -53,6 +59,8 @@ if __name__ == "__main__":
     SAVE_PATH = f"{MODEL_PATH}/{SAVE_MODEL_PATH}"
     if not os.path.exists(SAVE_PATH):
         os.makedirs(SAVE_PATH)
+
+    print(train_paths, valid_paths, test_paths)
 
     model = train_model(train_paths, valid_paths, SAVE_PATH)
     model.save_weights(f"{SAVE_PATH}/weights.after_training.hdf5")
