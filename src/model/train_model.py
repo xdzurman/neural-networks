@@ -61,8 +61,6 @@ if __name__ == "__main__":
     if not os.path.exists(SAVE_PATH):
         os.makedirs(SAVE_PATH)
 
-    print(train_paths, valid_paths, test_paths)
-
     model = train_model(train_paths, valid_paths, SAVE_PATH)
     model.save_weights(f"{SAVE_PATH}/weights.after_training.hdf5")
 
