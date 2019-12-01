@@ -22,7 +22,8 @@ def train_model(train_paths, valid_paths, SAVE_PATH):
     log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
     model_checkpoint_name = 'weights.{epoch:02d}-{val_loss:.2f}'
-    model_checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(filepath=f'{SAVE_PATH}/{model_checkpoint_name}.hdf5,', save_weights_only=True)
+    model_checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(filepath=f'{SAVE_PATH}/{model_checkpoint_name}.hdf5,',
+                                                             save_weights_only=True, period=5)
 
     train_steps = len(train_paths) // batch_size
     train_steps = train_steps if train_steps >= 1 else 1
