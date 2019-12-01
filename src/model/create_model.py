@@ -15,6 +15,6 @@ def create_model():
     )
 
     optimizer = Adam()
-    colorizing_model.compile(optimizer=optimizer, loss="mse", metrics=["accuracy"])
+    colorizing_model.compile(optimizer='rmsprop', loss="mse", metrics=["accuracy"])
 
     return colorizing_model
