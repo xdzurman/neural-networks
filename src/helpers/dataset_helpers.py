@@ -18,10 +18,14 @@ df_inception_resnet2 = pd.read_csv("./precomputed_inputs/inception_res_net_v2.cs
 df_inception_resnet2['embedding'] = df_inception_resnet2['embedding'].apply(
     lambda x: np.array(eval(x.replace(' ', ','))))
 
-# df_vgg = pd.read_csv("./precomputed_inputs/vgg19.csv").drop(columns=['Unnamed: 0']).set_index('file_name')
-# df_vgg['embedding'] = df_vgg['embedding'].apply(lambda x: np.array(eval(x.replace(' ', ','))))
+df_vgg = pd.read_csv("./precomputed_inputs/vgg19.csv").drop(columns=['Unnamed: 0']).set_index('file_name')
+df_vgg['embedding'] = df_vgg['embedding'].apply(lambda x: np.array(eval(x.replace(' ', ','))))
 
-embedding_df = df_inception_resnet2
+logging.getLogger().setLevel(logging.INFO)
+
+logging.info('loaded precomputed embeddings')
+# embedding_df = df_inception_resnet2
+embedding_df = df_vgg
 
 """
 Generating and preprocessing is 
